@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.zhengjianhui.title.book.BookActivity">
+    tools:context="com.example.zhengjianhui.title.book.SearchBookActivity">
 
 
     <android.support.design.widget.AppBarLayout
@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/bookToolBar"
+            android:id="@+id/searchBookToolBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -21,7 +21,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_book"/>
+    <include layout="@layout/content_search_book"/>
+    <include layout="@layout/content_book_bar"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

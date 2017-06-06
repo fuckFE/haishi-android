@@ -16,7 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.zhengjianhui.title.R;
-import com.example.zhengjianhui.title.book.BookActivity;
+import com.example.zhengjianhui.title.book.SearchBookActivity;
 import com.example.zhengjianhui.title.MainAdapter;
 
 import java.lang.reflect.Method;
@@ -85,7 +85,7 @@ public class SearchResultActivity extends AppCompatActivity {
 
 
                 //新建一个显式意图，第一个参数为当前Activity类对象，第二个参数为你要打开的Activity类
-                Intent intent = new Intent(SearchResultActivity.this, BookActivity.class);
+                Intent intent = new Intent(SearchResultActivity.this, SearchBookActivity.class);
                 //用Bundle携带数据
                 Bundle bundle = new Bundle();
                 for (Map.Entry<Integer, String> e : data.entrySet()) {

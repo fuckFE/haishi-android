@@ -7,7 +7,7 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.zhengjianhui.title.book.BookActivity"
-    tools:showIn="@layout/activity_book"
+    tools:showIn="@layout/activity_search_book"
     tools:layout_editor_absoluteY="81dp"
     tools:layout_editor_absoluteX="0dp">
 

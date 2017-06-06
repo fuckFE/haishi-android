@@ -26,15 +26,10 @@ public class BookAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     private Context mContext;
 
-//    private String[] highlighteds;
 
-    public BookAdapter(Context mContext, List<Spanned> datas, String highlighted) {
+    public BookAdapter(Context mContext, List<Spanned> datas) {
         this.datas = datas;
         this.mContext = mContext;
-
-//        if(highlighted != null) {
-//            this.highlighteds = highlighted.split(" ");
-//        }
 
         mlayoutInflater = LayoutInflater.from(mContext);
 
@@ -65,19 +60,6 @@ public class BookAdapter extends RecyclerView.Adapter<MyViewHolder> {
     public int getItemCount() {
         return datas.size();
     }
-
-
-//    private Spanned dealHtmlString(String html) {
-//        if (highlighteds != null) {
-//            for (String s : highlighteds) {
-//                html = html.replace(s, "<font color='#e87400'>" + s + "</font>");
-//            }
-//
-//        }
-//
-//        return Html.fromHtml(html);
-//    }
-
 
 }
 

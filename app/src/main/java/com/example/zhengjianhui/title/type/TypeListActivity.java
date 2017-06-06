@@ -17,6 +17,7 @@ import android.widget.ListView;
 
 import com.example.zhengjianhui.title.R;
 import com.example.zhengjianhui.title.book.BookActivity;
+import com.example.zhengjianhui.title.book.SearchBookActivity;
 import com.example.zhengjianhui.title.MainAdapter;
 import com.example.zhengjianhui.title.search.SearchResultActivity;
 
@@ -126,7 +127,7 @@ public class TypeListActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Intent intent = new Intent(TypeListActivity.this, SearchResultActivity.class);
+                Intent intent = new Intent(TypeListActivity.this, SearchBookActivity.class);
                 //用Bundle携带数据
                 Bundle bundle = new Bundle();
                 // 传递name参数为tinyphp
