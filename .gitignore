@@ -8,3 +8,5 @@
 /captures
 .externalNativeBuild
 /app/src/main/assets/laws.db
+/.idea
+/.idea/*
