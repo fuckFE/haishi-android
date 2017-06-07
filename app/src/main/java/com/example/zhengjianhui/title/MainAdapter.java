@@ -78,6 +78,13 @@ public class MainAdapter extends BaseAdapter {
         return convertView;
     }
 
+
+    public void onDataChange(List<Map<Integer, String>> datas) {
+        this.datas.addAll(datas);
+        // 通知ListView 数据发生改变
+        this.notifyDataSetChanged();
+    }
+
     /**
      * 用于与  View convertView 建立关联 避免频繁的 findViewById
      * 这样能提高性能

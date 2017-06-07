@@ -9,9 +9,11 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -33,19 +35,45 @@ public class SearchResultActivity extends AppCompatActivity {
 
     private SearchView searchView;
 
-
     private ListView searchList;
+
     private MainAdapter searchAdapter;
+
+    private View footer;
+
+    private SQLiteDatabase db;
+
+    private String[] params;
+
+    private boolean isLast = false;
+
+    private int totalCount = 0;
+
+    private boolean isLoading = false;
+
+    /**
+     * 分页偏移量
+     */
+    private int offset = 0;
+
+    /**
+     * 每页查询数
+     */
+    private int limit = 15;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_result);
 
+        this.db = openOrCreateDatabase("laws.db", MODE_PRIVATE, null);
+
         //新页面接收数据
         Bundle bundle = this.getIntent().getExtras();
         //接收name值
         String query = bundle.getString("query");
+        query = "印发 广东省";
+        this.params = query.split(" ");
 
         initToolBar("查询结果");
         initSearchList(query);
@@ -63,21 +91,22 @@ public class SearchResultActivity extends AppCompatActivity {
 
 
     private void initSearchList(String query) {
-        query = "港口 海事局";
+        List<Map<Integer, String>> datas = query();
 
-        List<Map<Integer, String>> datas = query(query);
-        if(datas.isEmpty()) {
-            Map<Integer, String> data = new HashMap<>(1);
-            data.put(1, "未能查询到结果");
-            datas.add(data);
-        }
+        this.searchList = (ListView) findViewById(R.id.search_result_list);
 
-        this.searchList = (ListView) findViewById(R.id.type_list4);
+        // 添加底部loading 栏
+        LayoutInflater inflater = LayoutInflater.from(searchList.getContext());
+        this.footer = inflater.inflate(R.layout.search_result_footer, null);
+        // 隐藏loading 条
+        this.footer.findViewById(R.id.search_result_loading).setVisibility(View.GONE);
+        this.searchList.addFooterView(footer);
+
         this.searchAdapter = new MainAdapter(datas, this);
-        searchList.setAdapter(searchAdapter);
+        this.searchList.setAdapter(searchAdapter);
 
         final String finalQuery = query;
-        searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        this.searchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ListView lv = (ListView) parent;
@@ -99,29 +128,69 @@ public class SearchResultActivity extends AppCompatActivity {
             }
         });
 
+
+        this.searchList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if(isLast) {
+                    return;
+                }
+
+                // 到达最后一项，并且停止滚动
+                if (searchList.getLastVisiblePosition() + 1 == totalCount && scrollState == SCROLL_STATE_IDLE) {
+                    if (!isLoading) {
+                        isLoading = true;
+                        // 显示出 loading 条
+                        footer.findViewById(R.id.search_result_loading).setVisibility(View.VISIBLE);
+                        // 加载数据
+                        List<Map<Integer, String>> datas = query();
+                        if(!datas.isEmpty()) {
+                            searchAdapter.onDataChange(datas);
+                            loadcomplete();
+                        } else {
+                            loadcomplete();
+                            LayoutInflater inflater = LayoutInflater.from(searchList.getContext());
+                            footer = inflater.inflate(R.layout.search_result_footer2, null);
+                            // 隐藏loading 条
+                            footer.findViewById(R.id.search_result_loading2).setVisibility(View.VISIBLE);
+                            searchList.addFooterView(footer);
+
+                            isLast = true;
+
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                totalCount = totalItemCount;
+            }
+        });
+
     }
 
+    private void loadcomplete() {
+        // 放开加载限制
+        isLoading = false;
+        // 隐藏 loading 条
+        footer.findViewById(R.id.search_result_loading).setVisibility(View.GONE);
+    }
 
-    private List<Map<Integer, String>> query(String query) {
-        String[] params = query.split(" ");
-
-        String sql1 = "select laws_id, laws_title from laws where 1 = 1";
+    private List<Map<Integer, String>> query() {
         String condition1 = "laws_title like";
-        String sql2 = "select laws_id, laws_title from laws where 1 = 1";
         String condition2 = "laws_content like";
-        StringBuilder var1 = new StringBuilder();
-        StringBuilder var2 = new StringBuilder();
+        StringBuilder sql = new StringBuilder("select laws_id, laws_title from laws where 1 = 1 ");
 
         for (int i = 0; i < params.length; i++) {
-            String data = params[i];
-            var1.append(" and ").append(condition1).append(" '%" + data + "%'");
-            var2.append(" and ").append(condition2).append(" '%" + data + "%'");
+            sql.append("and (").append(condition1).append(" '%").append(params[i]).append("%'")
+                    .append(" or ").append(condition2).append(" '%").append(params[i]).append("%') ");
         }
 
-        StringBuilder sql = new StringBuilder(sql1);
-        sql.append(var1.toString()).append(" UNION ").append(sql2).append(var2);
+        sql.append("order by laws_id ").append("limit ").append(limit).append(" offset ").append(offset == 0 ? 0 : offset);
+        offset += limit;
 
-        SQLiteDatabase db = openOrCreateDatabase("laws.db", MODE_PRIVATE, null);
         Cursor cursor = db.rawQuery(sql.toString(), null);
 
         List<Map<Integer, String>> datas = new ArrayList<>(cursor.getColumnCount());
@@ -135,8 +204,6 @@ public class SearchResultActivity extends AppCompatActivity {
     }
 
 
-
-
     /**
      * 初始化菜单
      *
@@ -145,11 +212,8 @@ public class SearchResultActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
         initSearchView(menu);
-
 
         return true;
     }
@@ -226,5 +290,12 @@ public class SearchResultActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        db.close();
+        super.onDestroy();
+
     }
 }
