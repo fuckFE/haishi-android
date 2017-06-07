@@ -47,7 +47,7 @@ public class SearchBookActivity extends AppCompatActivity {
 
     private List<Integer> recordPositions = new ArrayList<>();
 
-    private int currentPoint = 0;
+    private int positionsIndex = 0;
 
 
     @Override
@@ -94,36 +94,93 @@ public class SearchBookActivity extends AppCompatActivity {
         onARecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPoint < 0 || currentPoint >= recordPositions.size() || recordPositions.size() == 0) {
+//                if (positionsIndex < 0 || positionsIndex >= recordPositions.size() || recordPositions.size() == 0) {
+//                    return;
+//                }
+//                moveToPosition(recordPositions.get(positionsIndex));
+//                positionsIndex--;
+//
+//                if(positionsIndex < 0) {
+//                    positionsIndex = 0;
+//                }
+
+                int position = getCurrentFirstItemPosition();
+                if(position == 0) {
                     return;
                 }
 
-                MoveToPosition(linearLayoutManager, recordPositions.get(currentPoint));
-                currentPoint--;
-
-                if(currentPoint < 0) {
-                    currentPoint = 0;
+                for(int i = recordPositions.size() - 1; i >= 0; i--) {
+                    if(recordPositions.get(i) < position) {
+                        positionsIndex = recordPositions.get(i);
+                        moveToPosition(positionsIndex);
+                        return;
+                    }
                 }
+
+
+
             }
         });
 
         underARecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (currentPoint < 0 || currentPoint >= recordPositions.size() || recordPositions.size() == 0) {
+//                if (positionsIndex < 0 || positionsIndex >= recordPositions.size() || recordPositions.size() == 0) {
+//                    return;
+//                }
+//
+//                moveToPosition(recordPositions.get(positionsIndex));
+//                positionsIndex++;
+//
+//                if(positionsIndex >= recordPositions.size()) {
+//                    positionsIndex = recordPositions.size() - 1;
+//                }
+
+
+                int position = getCurrentLastPosition();
+                if(position == linearLayoutManager.getItemCount() || recordPositions.get(recordPositions.size() - 1) == position) {
                     return;
                 }
 
-                MoveToPosition(linearLayoutManager, recordPositions.get(currentPoint));
-                currentPoint++;
-
-                if(currentPoint >= recordPositions.size()) {
-                    currentPoint = recordPositions.size() - 1;
+                for(int i = 0; i < recordPositions.size(); i++) {
+                    if(recordPositions.get(i) > position) {
+                        positionsIndex = recordPositions.get(i);
+                        moveToPosition(positionsIndex);
+                        return;
+                    }
                 }
             }
         });
 
     }
+
+
+    /**
+     * 移动页面到 position 指定位置
+     *
+     * @param position
+     */
+    public void moveToPosition(int position) {
+        bookView.smoothScrollToPosition(position);
+    }
+
+
+    /**
+     * 获取当前页面的 第一个 Item 的 position
+     * @return
+     */
+    private int getCurrentFirstItemPosition() {
+        return linearLayoutManager.findFirstVisibleItemPosition();
+    }
+
+    /**
+     * 获取当前页面的 最后一个 Item 的 position
+     * @return
+     */
+    private int getCurrentLastPosition() {
+        return linearLayoutManager.findLastVisibleItemPosition();
+    }
+
 
 
     private List<Spanned> initData(int key, String highlighted) {
@@ -192,20 +249,6 @@ public class SearchBookActivity extends AppCompatActivity {
 
         return Html.fromHtml(html);
     }
-
-
-
-
-    /**
-     * 移动页面到 position 指定位置
-     *
-     * @param manager
-     * @param position
-     */
-    public void MoveToPosition(LinearLayoutManager manager, int position) {
-        bookView.smoothScrollToPosition(position);
-    }
-
 
     /**
      * 初始化菜单
