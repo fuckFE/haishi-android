@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="20dp">
+    >
 
-    <TextView
-        android:id="@+id/main_list_item"
+    <ListView
+        android:id="@+id/main_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#666872"
-        android:textSize="18dp"
-       />
+        android:divider="#99CCFF"
+        android:dividerHeight="10dp"
+        />
 
 </RelativeLayout>

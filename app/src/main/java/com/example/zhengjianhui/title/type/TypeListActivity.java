@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.zhengjianhui.title.BookBean;
 import com.example.zhengjianhui.title.R;
 import com.example.zhengjianhui.title.book.BookActivity;
 import com.example.zhengjianhui.title.book.SearchBookActivity;
@@ -69,10 +70,11 @@ public class TypeListActivity extends AppCompatActivity {
         SQLiteDatabase db = openOrCreateDatabase("laws.db", MODE_PRIVATE, null);
         Cursor cursor = db.rawQuery("select laws_id, laws_title from laws where type_id = ?", new String[]{String.valueOf(key)});
 
-        List<Map<Integer, String>> datas = new ArrayList<>(cursor.getColumnCount());
+        List<BookBean> datas = new ArrayList<>(cursor.getColumnCount());
         while (cursor.moveToNext()) {
-            Map<Integer, String> data = new HashMap(1);
-            data.put(cursor.getInt(0), cursor.getString(1));
+            BookBean data = new BookBean();
+            data.setKey(cursor.getInt(0));
+            data.setName(cursor.getString(1));
             datas.add(data);
         }
         cursor.close();
@@ -85,16 +87,14 @@ public class TypeListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ListView lv = (ListView) parent;
-                Map<Integer, String> data = (HashMap<Integer, String>) lv.getItemAtPosition(position);
+                BookBean data = (BookBean) lv.getItemAtPosition(position);
 
                 //新建一个显式意图，第一个参数为当前Activity类对象，第二个参数为你要打开的Activity类
                 Intent intent = new Intent(TypeListActivity.this, BookActivity.class);
                 //用Bundle携带数据
                 Bundle bundle = new Bundle();
-                for (Map.Entry<Integer, String> e : data.entrySet()) {
-                    bundle.putInt("key", e.getKey());
-                    bundle.putString("name", e.getValue());
-                }
+                bundle.putInt("key", data.getKey());
+                bundle.putString("name", data.getName());
 
                 intent.putExtras(bundle);
                 startActivity(intent);

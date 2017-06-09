@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- search view 在6中使用 app 前缀 -->
+    <item
+        android:id="@+id/toolbar_search"
+        android:icon="@drawable/actionbar_search_icon"
+        android:title="@string/toolbar_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/toolbar_add"
+        android:icon="@drawable/actionbar_add_icon"
+        android:title="@string/toolbar_add"
+        app:showAsAction="never"
+        />
+
+
+    <item
+        android:id="@+id/menu_group_chat"
+        android:icon="@drawable/menu_group_chat_icon"
+        android:title="@string/menu_group_chat"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_scan"
+        android:icon="@drawable/men_scan_icon"
+        android:title="@string/menu_scan"
+        app:showAsAction="never"
+        />
+
+
+    <item
+        android:id="@+id/menu_addfriend"
+        android:icon="@drawable/menu_add_icon"
+        android:title="@string/menu_addfirend"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/menu_feedback"
+        android:icon="@drawable/menu_feedback_icon"
+        android:title="@string/menu_feedback"
+        app:showAsAction="never"
+        />
+
+
+</menu>

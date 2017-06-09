@@ -19,10 +19,10 @@ import java.util.Map;
 
 public class MainAdapter extends BaseAdapter {
 
-    private List<Map<Integer, String>> datas;
+    private List<BookBean> datas;
     private LayoutInflater mlayoutInflater;
 
-    public MainAdapter(List<Map<Integer, String>> datas, Context context) {
+    public MainAdapter(List<BookBean> datas, Context context) {
         this.datas = datas;
 
         this.mlayoutInflater = LayoutInflater.from(context);
@@ -45,19 +45,14 @@ public class MainAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // mlayoutInflater.inflate 将一个xml 转换成view
-//        View view = mlayoutInflater.inflate(R.layout.list_item, null);
-//        TextView text = (TextView) view.findViewById(R.id.list_item);
-//        text.setText(datas.get(position));
-
         MainListViewHolder holder;
         if (convertView == null) {
             convertView = mlayoutInflater.inflate(R.layout.list_item, null);
             TextView text = (TextView) convertView.findViewById(R.id.main_list_item);
 
 //            text.setSingleLine();
-            text.setMaxEms(25);
-            text.setEllipsize(TextUtils.TruncateAt.END);
+//            text.setMaxEms(25);
+//            text.setEllipsize(TextUtils.TruncateAt.END);
 
             holder = new MainListViewHolder();
             holder.setTextView(text);
@@ -68,18 +63,16 @@ public class MainAdapter extends BaseAdapter {
         }
 
 
-        Map<Integer, String> data = datas.get(position);
-        for (Map.Entry<Integer, String> e : data.entrySet()) {
-            holder.getTextView().setText(e.getValue());
-            holder.setId(e.getKey());
-        }
+        BookBean data = datas.get(position);
+        holder.getTextView().setText(data.getName());
+        holder.setId(data.getKey());
 
 
         return convertView;
     }
 
 
-    public void onDataChange(List<Map<Integer, String>> datas) {
+    public void onDataChange(List<BookBean> datas) {
         this.datas.addAll(datas);
         // 通知ListView 数据发生改变
         this.notifyDataSetChanged();

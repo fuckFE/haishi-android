@@ -1,5 +1,7 @@
 package com.example.zhengjianhui.title.main;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -11,29 +13,30 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.ashokvarma.bottomnavigation.BottomNavigationBar;
+import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.example.zhengjianhui.title.BookBean;
 import com.example.zhengjianhui.title.MainAdapter;
 import com.example.zhengjianhui.title.R;
 import com.example.zhengjianhui.title.db.DataBaseHelper;
 import com.example.zhengjianhui.title.search.SearchResultActivity;
-import com.example.zhengjianhui.title.type.TypeListActivity;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BottomNavigationBar.OnTabSelectedListener {
 
     private SearchView searchView;
 
     private ListView mainList;
+
     private MainAdapter mainAdapter;
+
+    private BookFragment bookFragment;
 
 
     @Override
@@ -42,11 +45,47 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         checkDatabaseNotExistsWithInit();
         initToolBar();
-        initMainList();
+        initNavigationBar();
+    }
+
+    public List<BookBean> getMainListDatas() {
+        SQLiteDatabase db = openOrCreateDatabase("laws.db", MODE_PRIVATE, null);
+        Cursor cursor = db.rawQuery("select * from type where isExist = 1", null);
+
+        List<BookBean> datas = new ArrayList<>(cursor.getColumnCount());
+        while (cursor.moveToNext()) {
+            BookBean data = new BookBean();
+            data.setKey(cursor.getInt(0));
+            data.setName(cursor.getString(1));
+            datas.add(data);
+        }
+        cursor.close();
+        db.close();
+
+        return datas;
+    }
+
+    void initNavigationBar() {
+        BottomNavigationBar bottomNavigationBar = (BottomNavigationBar) findViewById(R.id.bottom_navigation_bar);
+
+        bottomNavigationBar
+                .addItem(new BottomNavigationItem(R.drawable.tab_settings_normal, "Home"))
+                .addItem(new BottomNavigationItem(R.drawable.tab_settings_normal, "Books"))
+                .addItem(new BottomNavigationItem(R.drawable.tab_settings_normal, "Music"))
+                .initialise();
+
+        bottomNavigationBar.setTabSelectedListener(this);
+        setDefaultFragment();
+    }
 
 
+    private void setDefaultFragment() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        bookFragment = bookFragment.newInstance(getMainListDatas());
 
-
+        transaction.replace(R.id.tb, bookFragment);
+        transaction.commit();
     }
 
     private void checkDatabaseNotExistsWithInit() {
@@ -63,46 +102,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initMainList() {
-        SQLiteDatabase db = openOrCreateDatabase("laws.db", MODE_PRIVATE, null);
-        Cursor cursor = db.rawQuery("select * from type where isExist = 1", null);
 
-        List<Map<Integer, String>> datas = new ArrayList<>(cursor.getColumnCount());
-        while (cursor.moveToNext()) {
-            Map<Integer, String> data = new HashMap(1);
-            data.put(cursor.getInt(0), cursor.getString(1));
-            datas.add(data);
-        }
-        cursor.close();
-        db.close();
-
-
-        this.mainList = (ListView) findViewById(R.id.main_list);
-        this.mainAdapter = new MainAdapter(datas, this);
-        mainList.setAdapter(mainAdapter);
-        mainList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ListView lv = (ListView) parent;
-                // getItemAtPosition 方法对应的是 自定义 adapter 中的 getItem方法
-                Map<Integer, String> data = (HashMap<Integer, String>) lv.getItemAtPosition(position);
-
-                //新建一个显式意图，第一个参数为当前Activity类对象，第二个参数为你要打开的Activity类
-                Intent intent = new Intent(MainActivity.this, TypeListActivity.class);
-                //用Bundle携带数据
-                Bundle bundle = new Bundle();
-                //传递name参数为tinyphp
-                for (Map.Entry<Integer, String> e : data.entrySet()) {
-                    bundle.putInt("key", e.getKey());
-                    bundle.putString("name", e.getValue());
-                }
-
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
-
-    }
 
     private void initToolBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -201,5 +201,53 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTabSelected(int position) {
+        FragmentManager fm = this.getFragmentManager();
+        //开启事务
+        FragmentTransaction transaction = fm.beginTransaction();
+        switch (position) {
+            case 0:
+                if (bookFragment == null) {
+                    bookFragment = BookFragment.newInstance(getMainListDatas());
+                }
+                transaction.replace(R.id.tb, bookFragment);
+                break;
+            case 1:
+                if (bookFragment == null) {
+
+                    List<BookBean> datas = new ArrayList<>(5);
+                    BookBean data = new BookBean();
+                    data.setName("222222");
+                    bookFragment = BookFragment.newInstance(datas);
+                }
+                transaction.replace(R.id.tb, bookFragment);
+                break;
+            case 2:
+                if (bookFragment == null) {
+                    List<BookBean> datas = new ArrayList<>(5);
+                    BookBean data = new BookBean();
+                    data.setName("33333");
+                    bookFragment = BookFragment.newInstance(datas);
+                }
+                transaction.replace(R.id.tb, bookFragment);
+                break;
+            default:
+                break;
+        }
+        // 事务提交
+        transaction.commit();
+    }
+
+    @Override
+    public void onTabUnselected(int position) {
+
+    }
+
+    @Override
+    public void onTabReselected(int position) {
+
     }
 }

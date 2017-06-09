@@ -17,6 +17,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.zhengjianhui.title.BookBean;
 import com.example.zhengjianhui.title.R;
 import com.example.zhengjianhui.title.book.SearchBookActivity;
 import com.example.zhengjianhui.title.MainAdapter;
@@ -91,7 +92,7 @@ public class SearchResultActivity extends AppCompatActivity {
 
 
     private void initSearchList(String query) {
-        List<Map<Integer, String>> datas = query();
+        List<BookBean> datas = query();
 
         this.searchList = (ListView) findViewById(R.id.search_result_list);
 
@@ -110,18 +111,16 @@ public class SearchResultActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ListView lv = (ListView) parent;
-                Map<Integer, String> data = (HashMap<Integer, String>) lv.getItemAtPosition(position);
+                BookBean data = (BookBean) lv.getItemAtPosition(position);
 
 
                 //新建一个显式意图，第一个参数为当前Activity类对象，第二个参数为你要打开的Activity类
                 Intent intent = new Intent(SearchResultActivity.this, SearchBookActivity.class);
                 //用Bundle携带数据
                 Bundle bundle = new Bundle();
-                for (Map.Entry<Integer, String> e : data.entrySet()) {
-                    bundle.putInt("key", e.getKey());
-                    bundle.putString("name", e.getValue());
-                    bundle.putString("highlighted", finalQuery);
-                }
+                bundle.putInt("key", data.getKey());
+                bundle.putString("name", data.getName());
+                bundle.putString("highlighted", finalQuery);
 
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -132,7 +131,7 @@ public class SearchResultActivity extends AppCompatActivity {
         this.searchList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if(isLast) {
+                if (isLast) {
                     return;
                 }
 
@@ -143,8 +142,8 @@ public class SearchResultActivity extends AppCompatActivity {
                         // 显示出 loading 条
                         footer.findViewById(R.id.search_result_loading).setVisibility(View.VISIBLE);
                         // 加载数据
-                        List<Map<Integer, String>> datas = query();
-                        if(!datas.isEmpty()) {
+                        List<BookBean> datas = query();
+                        if (!datas.isEmpty()) {
                             searchAdapter.onDataChange(datas);
                             loadcomplete();
                         } else {
@@ -178,7 +177,7 @@ public class SearchResultActivity extends AppCompatActivity {
         footer.findViewById(R.id.search_result_loading).setVisibility(View.GONE);
     }
 
-    private List<Map<Integer, String>> query() {
+    private List<BookBean> query() {
         String condition1 = "laws_title like";
         String condition2 = "laws_content like";
         StringBuilder sql = new StringBuilder("select laws_id, laws_title from laws where 1 = 1 ");
@@ -193,10 +192,11 @@ public class SearchResultActivity extends AppCompatActivity {
 
         Cursor cursor = db.rawQuery(sql.toString(), null);
 
-        List<Map<Integer, String>> datas = new ArrayList<>(cursor.getColumnCount());
+        List<BookBean> datas = new ArrayList<>(cursor.getColumnCount());
         while (cursor.moveToNext()) {
-            Map<Integer, String> data = new HashMap(1);
-            data.put(cursor.getInt(0), cursor.getString(1));
+            BookBean data = new BookBean();
+            data.setKey(cursor.getInt(0));
+            data.setName(cursor.getString(1));
             datas.add(data);
         }
 
